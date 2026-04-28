@@ -1,5 +1,15 @@
 # ⚖️ IRDAI-Rules-Engine: Regulatory Logic Extraction
 
+## 🤝 Contact & Collaboration
+
+This project is an evolving initiative. Whether you are building an InsurTech platform, researching computational law, or exploring regulatory automation, I would love to connect.
+
+* **Developer & Legal Architect:** Yogendra Jain, Founder & CEO Juriscode Labs
+* **LinkedIn:** JurisCode Labs- https://www.linkedin.com/company/juriscode-labs/ 
+*               Yogendra Jain- https://www.linkedin.com/in/theyogendr/
+* **Email:** juriscodelabs@gmail.com & jainyo94@gmail.com 
+* **Organization:** Juriscode Labs (Reg. MSME/Govt. of India)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Status: Active](https://img.shields.io/badge/Status-Active_Development-success.svg)]()
