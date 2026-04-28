@@ -6,7 +6,7 @@ This project is an evolving initiative. Whether you are building an InsurTech pl
 
 * **Developer & Legal Architect:** Yogendra Jain, Founder & CEO Juriscode Labs
 * **LinkedIn:** JurisCode Labs- https://www.linkedin.com/company/juriscode-labs/ 
-*               Yogendra Jain- https://www.linkedin.com/in/theyogendr/
+                Yogendra Jain- https://www.linkedin.com/in/theyogendr/
 * **Email:** juriscodelabs@gmail.com & jainyo94@gmail.com 
 * **Organization:** Juriscode Labs (Reg. MSME/Govt. of India)
 
