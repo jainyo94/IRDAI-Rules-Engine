@@ -1,0 +1,113 @@
+{
+  "metadata": {
+    "created_by": "JurisCode Labs",
+    "legal_validator": "Yogendra Jain, LLM Insurance Law, NUJS Kolkata",
+    "source_regulation": "IRDAI Master Circular on Health Insurance 2024",
+    "version": "1.0",
+    "msme_reg": "MP-20-0105989"
+  },
+  "rules": [
+    {
+      "id": "DR-2024-PED-01",
+      "name": "Moratorium Period — 48 Months Complete Bar",
+      "field": "continuous_coverage_months",
+      "operator": ">=",
+      "value": 48,
+      "secondary_condition": null,
+      "verdict": "pay",
+      "action": "BLOCK_ALL_PED_REJECTION",
+      "priority": 1,
+      "clause": "IRDAI Master Circular on Health Insurance 2024 — Clause 17",
+      "regulatory_text": "After a continuous period of insurance of 48 months, no insurer shall contest or repudiate a health insurance claim on the grounds of pre-existing disease, whether declared or not declared at inception.",
+      "plain_english": "If continuously insured for 48+ months, insurer cannot reject any claim on pre-existing disease grounds — no exceptions.",
+      "applies_when": "always"
+    },
+    {
+      "id": "DR-2024-PED-02",
+      "name": "Standard PED Waiting Period — 36 Months",
+      "field": "continuous_coverage_months",
+      "operator": ">=",
+      "value": 36,
+      "secondary_condition": {
+        "field": "condition_declared",
+        "operator": "==",
+        "value": "yes"
+      },
+      "verdict": "pay",
+      "action": "WAITING_PERIOD_SATISFIED",
+      "priority": 2,
+      "clause": "IRDAI Master Circular on Health Insurance 2024 — Clause 16",
+      "regulatory_text": "The waiting period for pre-existing diseases shall not exceed 36 months of continuous coverage from the date of inception of the first policy with any Indian insurer.",
+      "plain_english": "If declared PED and 36+ months coverage — waiting period is over, claim must be paid.",
+      "applies_when": "condition_declared == yes"
+    },
+    {
+      "id": "DR-2024-PED-03",
+      "name": "Portability — Waiting Period Credit Mandatory",
+      "field": "policy_ported",
+      "operator": "==",
+      "value": "yes",
+      "secondary_condition": null,
+      "verdict": "amber",
+      "action": "APPLY_PORTABILITY_CREDIT",
+      "priority": 3,
+      "clause": "IRDAI Master Circular on Health Insurance 2024 — Clause 38",
+      "regulatory_text": "In case of portability, the waiting period already served with the previous insurer shall be fully credited. The insured shall not be required to serve the waiting period afresh with the new insurer.",
+      "plain_english": "Time served under previous policy counts. Insurer cannot restart the waiting period clock after portability.",
+      "applies_when": "policy_ported == yes"
+    },
+    {
+      "id": "DR-2024-PED-04",
+      "name": "Non-Disclosure — Proportionate Remedy Only",
+      "field": "condition_declared",
+      "operator": "==",
+      "value": "no",
+      "secondary_condition": {
+        "field": "continuous_coverage_months",
+        "operator": "<",
+        "value": 48
+      },
+      "verdict": "amber",
+      "action": "PROPORTIONATE_REMEDY_ONLY",
+      "priority": 4,
+      "clause": "IRDAI Master Circular on Health Insurance 2024 — Clause 19",
+      "regulatory_text": "In case of innocent non-disclosure or misrepresentation of material facts, the insurer shall apply only a proportionate remedy and shall not outright repudiate the claim unless fraudulent intent is established.",
+      "plain_english": "Non-declared condition does not automatically mean rejection. Insurer can only deduct proportionately unless fraud is proven.",
+      "applies_when": "condition_declared == no AND coverage < 48 months"
+    },
+    {
+      "id": "DR-2024-PED-05",
+      "name": "Post-Inception Diagnosis — Not Pre-existing",
+      "field": "condition_diagnosed_when",
+      "operator": "==",
+      "value": "after_policy",
+      "secondary_condition": null,
+      "verdict": "pay",
+      "action": "BLOCK_PED_REJECTION",
+      "priority": 1,
+      "clause": "IRDAI Master Circular on Health Insurance 2024 — Clause 15",
+      "regulatory_text": "A condition first diagnosed after the date of commencement of the policy, with no prior symptoms or treatment before policy inception, shall not be classified as a pre-existing disease.",
+      "plain_english": "Condition diagnosed after policy started is NOT pre-existing. PED rejection is invalid.",
+      "applies_when": "condition_diagnosed_when == after_policy"
+    },
+    {
+      "id": "DR-2024-PED-06",
+      "name": "Specific Disease Waiting Period — 24 Month Cap",
+      "field": "continuous_coverage_months",
+      "operator": ">=",
+      "value": 24,
+      "secondary_condition": {
+        "field": "rejection_reason",
+        "operator": "==",
+        "value": "waiting_period"
+      },
+      "verdict": "amber",
+      "action": "VERIFY_SPECIFIC_DISEASE_LIST",
+      "priority": 5,
+      "clause": "IRDAI Master Circular on Health Insurance 2024 — Clause 16(b)",
+      "regulatory_text": "For specific diseases or procedures listed in the policy schedule, the waiting period shall not exceed 24 months of continuous coverage from inception.",
+      "plain_english": "For conditions on the specific disease list, 24 months is the maximum waiting period — not 36.",
+      "applies_when": "rejection_reason == waiting_period"
+    }
+  ]
+}

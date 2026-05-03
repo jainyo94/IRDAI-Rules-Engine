@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JurisCode Labs — Document Intelligence Engine</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --navy:       #0F1F3D;
+  --navy-mid:   #1A3260;
+  --blue:       #1E4D8C;
+  --blue-light: #2E6FBF;
+  --accent:     #C84B0F;
+  --cream:      #F7F3ED;
+  --cream-dark: #EDE8DF;
+  --white:      #FFFFFF;
+  --text:       #1A1A2E;
+  --text-mid:   #3D4460;
+  --text-light: #7A82A0;
+  --green:      #1A6B3C;
+  --green-bg:   #EBF7F1;
+  --green-border:#A7D7BF;
+  --red:        #9B1C1C;
+  --red-bg:     #FDF2F2;
+  --red-border: #F5A5A5;
+  --amber:      #92400E;
+  --amber-bg:   #FFFBEB;
+  --amber-border:#F5D47A;
+  --border:     #D4CDBC;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(30,77,140,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,75,15,0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--navy);
+  letter-spacing: -0.5px;
+}
+.logo-name span { color: var(--accent); }
+.logo-sub {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.badge {
+  background: var(--navy);
+  color: var(--cream);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 2px;
+  font-family: 'DM Mono', monospace;
+  align-self: center;
+}
+
+/* PAGE TITLE */
+.page-title h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 36px;
+  color: var(--navy);
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+.page-title h1 em { font-style: italic; color: var(--blue-light); }
+.page-subtitle {
+  font-size: 15px;
+  color: var(--text-mid);
+  margin-top: 10px;
+  line-height: 1.6;
+  max-width: 580px;
+}
+
+/* PIPELINE VISUAL */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 28px 0 36px;
+  background: var(--navy);
+  border-radius: 4px;
+  padding: 16px 20px;
+  overflow-x: auto;
+}
+.pipe-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.pipe-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.pipe-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(247,243,237,0.6);
+  font-family: 'DM Mono', monospace;
+  text-align: center;
+  white-space: nowrap;
+}
+.pipe-label strong {
+  display: block;
+  color: var(--cream);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.pipe-arrow {
+  color: rgba(247,243,237,0.3);
+  font-size: 18px;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+/* UPLOAD SECTION */
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.upload-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.upload-card-header {
+  background: var(--cream-dark);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.upload-card-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--navy);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.upload-card-header h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.upload-card-header p {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 1px;
+}
+
+.upload-body { padding: 16px 18px; }
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 4px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--blue-light);
+  background: rgba(46,111,191,0.04);
+}
+.drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.drop-icon { font-size: 28px; margin-bottom: 8px; }
+.drop-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-mid);
+}
+.drop-hint {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+.file-selected {
+  display: none;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+  word-break: break-all;
+}
+
+/* SUBMIT */
+.btn-analyze {
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--navy);
+  color: var(--cream);
+  border: none;
+  border-radius: 4px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: 0.3px;
+}
+.btn-analyze:hover { background: var(--navy-mid); }
+.btn-analyze:disabled { background: #888; cursor: not-allowed; }
+
+/* LOADING */
+#loading {
+  display: none;
+  margin-top: 28px;
+  text-align: center;
+  padding: 32px;
+}
+.loader-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.loader-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 13px;
+  color: var(--text-light);
+}
+.loader-step.active { color: var(--navy); border-color: var(--blue-light); }
+.loader-step.done   { color: var(--green); border-color: var(--green-border); background: var(--green-bg); }
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.loader-step.active .step-dot { background: var(--blue-light); animation: pulse 1s infinite; }
+.loader-step.done   .step-dot { background: var(--green); }
+@keyframes pulse {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+}
+.loading-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--navy);
+}
+
+/* RESULT */
+#result { display: none; margin-top: 32px; }
+
+/* VERDICT BANNER */
+.verdict-banner {
+  border-radius: 6px 6px 0 0;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid;
+  border-bottom: none;
+}
+.verdict-banner.pay   { background: var(--green-bg);  border-color: var(--green-border); }
+.verdict-banner.deny  { background: var(--red-bg);    border-color: var(--red-border); }
+.verdict-banner.amber { background: var(--amber-bg);  border-color: var(--amber-border); }
+
+.verdict-icon-big {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+}
+.pay   .verdict-icon-big { background: #C8EDDB; }
+.deny  .verdict-icon-big { background: #FBDADA; }
+.amber .verdict-icon-big { background: #FEF3C7; }
+
+.verdict-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+.pay   .verdict-title { color: var(--green); }
+.deny  .verdict-title { color: var(--red); }
+.amber .verdict-title { color: var(--amber); }
+
+.verdict-sub {
+  font-size: 13px;
+  margin-top: 4px;
+  color: var(--text-mid);
+}
+
+.confidence-tag {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 1px;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+.conf-HIGH   { background: var(--green); color: white; }
+.conf-MEDIUM { background: var(--amber); color: white; }
+.conf-LOW    { background: #888; color: white; }
+
+/* RESULT BODY */
+.result-body {
+  background: var(--white);
+  border: 1px solid;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 24px;
+}
+.verdict-banner.pay   + .result-body { border-color: var(--green-border); }
+.verdict-banner.deny  + .result-body { border-color: var(--red-border); }
+.verdict-banner.amber + .result-body { border-color: var(--amber-border); }
+
+/* SECTION TITLE */
+.sec-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+
+/* RULES */
+.rule-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.rule-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--blue-light);
+  letter-spacing: 1px;
+}
+.rule-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 4px 0 10px;
+}
+.rule-logic {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  background: var(--navy);
+  color: #A8D4F5;
+  padding: 10px 14px;
+  border-radius: 3px;
+  line-height: 1.8;
+  margin-bottom: 10px;
+  white-space: pre;
+  overflow-x: auto;
+}
+.rule-source {
+  font-size: 12px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  border-left: 3px solid var(--border);
+  padding-left: 12px;
+  font-style: italic;
+}
+.rule-source strong { font-style: normal; color: var(--text); font-weight: 600; }
+
+/* FACTS GRID */
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.fact-item {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 10px 13px;
+}
+.fact-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  font-family: 'DM Mono', monospace;
+}
+.fact-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-top: 3px;
+  word-break: break-word;
+}
+.fact-value.not-found { color: var(--text-light); font-weight: 400; font-style: italic; }
+
+/* ACTION BOX */
+.action-box {
+  padding: 16px 18px;
+  border-radius: 4px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.action-box.green { background: var(--green-bg);  border: 1px solid var(--green-border); }
+.action-box.red   { background: var(--red-bg);    border: 1px solid var(--red-border); }
+.action-box.amber { background: var(--amber-bg);  border: 1px solid var(--amber-border); }
+.action-icon { font-size: 18px; flex-shrink: 0; }
+.action-text strong { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.action-box.green strong { color: var(--green); }
+.action-box.red   strong { color: var(--red); }
+.action-box.amber strong { color: var(--amber); }
+.action-text p { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
+
+/* MISSING FIELDS WARNING */
+.missing-warn {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--amber);
+  line-height: 1.5;
+}
+
+/* DIVIDER */
+.result-divider {
+  border: none;
+  border-top: 1px dashed var(--border);
+  margin: 20px 0;
+}
+
+/* ERROR */
+.error-box {
+  margin-top: 24px;
+  padding: 18px 20px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--red);
+  display: none;
+}
+
+/* RESET */
+.btn-reset {
+  margin-top: 20px;
+  padding: 11px 20px;
+  background: transparent;
+  color: var(--text-mid);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-reset:hover { background: var(--cream); color: var(--navy); }
+
+/* FOOTER */
+.footer {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-left { font-size: 12px; color: var(--text-light); line-height: 1.6; }
+.footer-right { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-light); letter-spacing: 1px; text-align: right; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeUp 0.4s ease forwards; }
+
+@media (max-width: 600px) {
+  .upload-grid { grid-template-columns: 1fr; }
+  .facts-grid  { grid-template-columns: 1fr 1fr; }
+  .pipeline    { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo-name">Juris<span>Code</span> Labs</div>
+      <div class="logo-sub">Document Intelligence Engine</div>
+    </div>
+    <div class="badge">v0.2 — POC</div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="page-title">
+    <h1>Health Insurance<br><em>Document Analysis System</em></h1>
+    <p class="page-subtitle">
+      Upload the insurance policy and hospital document.
+      The system extracts facts, checks against IRDAI-validated
+      decision rules, and returns a compliance verdict with the exact regulatory source.
+    </p>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-icon">📄</div>
+      <div class="pipe-label"><strong>Upload</strong>Policy + Hospital docs</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-icon">🔍</div>
+      <div class="pipe-label"><strong>Extract</strong>Text from PDFs</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-icon">🧠</div>
+      <div class="pipe-label"><strong>Analyse</strong>AI fact extraction</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-icon">⚖️</div>
+      <div class="pipe-label"><strong>Check</strong>JurisCode rules engine</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-icon">✅</div>
+      <div class="pipe-label"><strong>Verdict</strong>With IRDAI source</div>
+    </div>
+  </div>
+
+  <!-- UPLOAD CARDS -->
+  <div class="upload-grid">
+
+    <div class="upload-card">
+      <div class="upload-card-header">
+        <div class="upload-card-icon">📋</div>
+        <div>
+          <h3>Insurance Policy Document</h3>
+          <p>Policy schedule, terms &amp; conditions</p>
+        </div>
+      </div>
+      <div class="upload-body">
+        <div class="drop-zone" id="policyZone">
+          <input type="file" id="policyFile" accept=".pdf" onchange="fileSelected('policy')">
+          <div class="drop-icon">📂</div>
+          <div class="drop-text">Click to upload policy PDF</div>
+          <div class="drop-hint">or drag and drop here</div>
+        </div>
+        <div class="file-selected" id="policySelected">✓ &nbsp;<span id="policyName"></span></div>
+      </div>
+    </div>
+
+    <div class="upload-card">
+      <div class="upload-card-header">
+        <div class="upload-card-icon">🏥</div>
+        <div>
+          <h3>Hospital Document</h3>
+          <p>Discharge summary, claim form, or diagnostic report</p>
+        </div>
+      </div>
+      <div class="upload-body">
+        <div class="drop-zone" id="hospitalZone">
+          <input type="file" id="hospitalFile" accept=".pdf" onchange="fileSelected('hospital')">
+          <div class="drop-icon">📂</div>
+          <div class="drop-text">Click to upload hospital PDF</div>
+          <div class="drop-hint">or drag and drop here</div>
+        </div>
+        <div class="file-selected" id="hospitalSelected">✓ &nbsp;<span id="hospitalName"></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUBMIT -->
+  <button class="btn-analyze" id="analyzeBtn" onclick="analyzeDocuments()">
+    <span>🔬</span>
+    <span>Analyse Documents &amp; Check Compliance</span>
+    <span>→</span>
+  </button>
+
+  <!-- ERROR -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="loading-title">Analysing Documents...</div>
+    <div class="loader-steps">
+      <div class="loader-step" id="step1"><div class="step-dot"></div>Reading PDFs and extracting text</div>
+      <div class="loader-step" id="step2"><div class="step-dot"></div>AI extracting structured facts from documents</div>
+      <div class="loader-step" id="step3"><div class="step-dot"></div>Running JurisCode rules engine</div>
+      <div class="loader-step" id="step4"><div class="step-dot"></div>Building compliance verdict</div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result"></div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">
+      JurisCode Labs · Legal Data Engineering<br>
+      juriscodelabs@gmail.com · MSME Reg: MP-20-0105989
+    </div>
+    <div class="footer-right">
+      RULES: IRDAI 2024<br>
+      VALIDATOR: Y. JAIN LLM
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── FILE SELECTION ────────────────────────────────────────────────
+function fileSelected(type) {
+  const fileInput = document.getElementById(type + 'File');
+  const selectedDiv = document.getElementById(type + 'Selected');
+  const nameSpan = document.getElementById(type + 'Name');
+
+  if (fileInput.files.length > 0) {
+    nameSpan.textContent = fileInput.files[0].name;
+    selectedDiv.style.display = 'block';
+  }
+}
+
+// Drag and drop support
+['policyZone', 'hospitalZone'].forEach(zoneId => {
+  const zone = document.getElementById(zoneId);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const type = zoneId === 'policyZone' ? 'policy' : 'hospital';
+    const input = document.getElementById(type + 'File');
+    input.files = e.dataTransfer.files;
+    fileSelected(type);
+  });
+});
+
+// ── LOADING STEPS ANIMATION ───────────────────────────────────────
+function animateSteps() {
+  const steps = ['step1', 'step2', 'step3', 'step4'];
+  const delays = [0, 2000, 5000, 8000];
+
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      // Mark previous as done
+      if (i > 0) document.getElementById(steps[i-1]).className = 'loader-step done';
+      document.getElementById(id).className = 'loader-step active';
+    }, delays[i]);
+  });
+}
+
+// ── MAIN FUNCTION ─────────────────────────────────────────────────
+async function analyzeDocuments() {
+  const policyFile   = document.getElementById('policyFile').files[0];
+  const hospitalFile = document.getElementById('hospitalFile').files[0];
+  const errorBox     = document.getElementById('errorBox');
+
+  // Validation
+  errorBox.style.display = 'none';
+  if (!policyFile) { showError('Please upload the insurance policy document.'); return; }
+  if (!hospitalFile) { showError('Please upload the hospital document.'); return; }
+
+  // Show loading
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('result').innerHTML = '';
+  animateSteps();
+
+  // Build form data
+  const formData = new FormData();
+  formData.append('policy_doc',   policyFile);
+  formData.append('hospital_doc', hospitalFile);
+
+  try {
+    const response = await fetch('/check', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+
+    // Mark last step done
+    document.getElementById('step4').className = 'loader-step done';
+    await sleep(600);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+
+    if (data.error) {
+      showError(data.error);
+      return;
+    }
+
+    renderResult(data);
+
+  } catch (err) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+    showError('Could not connect to the JurisCode server. Please ensure server.py is running.');
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  box.textContent = '⚠ ' + msg;
+  box.style.display = 'block';
+}
+
+// ── RENDER RESULT ─────────────────────────────────────────────────
+function renderResult(data) {
+  const { facts, result, metadata } = data;
+  const v = result.verdict; // pay / deny / amber
+
+  const icons    = { pay: '✅', deny: '❌', amber: '⚠️' };
+  const titles   = {
+    pay:   'Claim Must Be Accepted',
+    deny:  'Claim May Be Declined',
+    amber: 'Further Review Required'
+  };
+  const subtitles = {
+    pay:   'IRDAI regulations require this claim to be paid',
+    deny:  'Regulatory basis may exist for this denial — verify carefully',
+    amber: 'Insufficient regulatory clarity — escalate to compliance officer'
+  };
+  const actionColors = { pay: 'green', deny: 'red', amber: 'amber' };
+  const actionIcons  = { pay: '⚖️', deny: '📋', amber: '🔍' };
+  const actionTitles = {
+    pay:   'Required Action for Insurer',
+    deny:  'Basis for Potential Denial',
+    amber: 'Next Steps Required'
+  };
+
+  // Build rules HTML
+  const rulesHtml = (result.applied_rules || []).map(r => `
+    <div class="rule-card">
+      <div class="rule-id">${r.id}</div>
+      <div class="rule-name">${r.name}</div>
+      <div class="rule-logic">FIELD:    ${r.field}
+OPERATOR: ${r.operator}
+VALUE:    ${r.value} ${r.value === 48 || r.value === 36 || r.value === 24 ? 'months' : ''}
+ACTION:   ${r.action}</div>
+      <div class="rule-source">
+        <strong>${r.clause}</strong><br>
+        "${r.regulatory_text}"
+      </div>
+    </div>
+  `).join('') || '<div class="rule-card"><div class="rule-name">No specific rule matched — manual review required</div></div>';
+
+  // Build facts HTML — key fields only
+  const keyFacts = [
+    ['Policy Holder',     facts.policy_holder_name],
+    ['Patient',           facts.patient_name],
+    ['Insurer',           facts.insurer_name],
+    ['Policy Start',      facts.policy_start_date],
+    ['Admission Date',    facts.admission_date],
+    ['Diagnosis',         facts.primary_diagnosis],
+    ['Coverage Months',   facts.continuous_coverage_months + ' months'],
+    ['Declared',          facts.condition_declared],
+    ['Diagnosed When',    facts.condition_diagnosed_when],
+    ['Ported Policy',     facts.policy_ported],
+    ['Sum Insured',       facts.sum_insured],
+    ['Claimed Amount',    facts.claimed_amount],
+  ];
+
+  const factsHtml = keyFacts.map(([label, value]) => {
+    const isNotFound = !value || value === 'not_found' || value === 'null' || value === null;
+    return `<div class="fact-item">
+      <div class="fact-label">${label}</div>
+      <div class="fact-value ${isNotFound ? 'not-found' : ''}">${isNotFound ? 'Not found' : value}</div>
+    </div>`;
+  }).join('');
+
+  // Missing fields warning
+  const missingHtml = result.missing_fields && result.missing_fields.length > 0
+    ? `<div class="missing-warn">
+        ⚠ Some fields could not be extracted from documents: 
+        <strong>${result.missing_fields.join(', ')}</strong>. 
+        Confidence may be affected. Verify these manually.
+       </div>`
+    : '';
+
+  const html = `
+    <div class="animate-in">
+      <div class="verdict-banner ${v}">
+        <div class="verdict-icon-big">${icons[v]}</div>
+        <div>
+          <div class="verdict-title">${titles[v]}</div>
+          <div class="verdict-sub">${subtitles[v]}</div>
+        </div>
+        <div class="confidence-tag conf-${result.confidence}">${result.confidence} CONFIDENCE</div>
+      </div>
+
+      <div class="result-body">
+
+        <div class="sec-title">Decision Rules Applied</div>
+        ${rulesHtml}
+
+        <div class="action-box ${actionColors[v]}">
+          <div class="action-icon">${actionIcons[v]}</div>
+          <div class="action-text">
+            <strong>${actionTitles[v]}</strong>
+            <p>${result.message}</p>
+          </div>
+        </div>
+
+        ${missingHtml}
+
+        <hr class="result-divider">
+
+        <div class="sec-title">Facts Extracted From Documents</div>
+        <div class="facts-grid">${factsHtml}</div>
+
+        <hr class="result-divider">
+
+        <p style="font-size:11px;color:var(--text-light);line-height:1.7;">
+          Rules validated by: ${metadata.legal_validator}<br>
+          Source: ${metadata.source_regulation}<br>
+          ⚠ This is a decision support tool. Complex cases should be reviewed by a qualified insurance law specialist.
+          JurisCode Labs — MSME Reg: ${metadata.msme_reg}
+        </p>
+
+        <button class="btn-reset" onclick="resetForm()">← Analyse Another Claim</button>
+      </div>
+    </div>
+  `;
+
+  const resultEl = document.getElementById('result');
+  resultEl.innerHTML = html;
+  resultEl.style.display = 'block';
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetForm() {
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('policyFile').value = '';
+  document.getElementById('hospitalFile').value = '';
+  document.getElementById('policySelected').style.display = 'none';
+  document.getElementById('hospitalSelected').style.display = 'none';
+  document.getElementById('errorBox').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
