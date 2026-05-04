@@ -1,141 +1,195 @@
-# JurisCode Labs — Legal Intelligence Engine
-### IRDAI Health Insurance Compliance System
+# IRDAI Rules Engine
+### Regulatory Text → Machine-Executable Compliance Rules → Automated Claim Verdicts
 
-**Govt. Recognised MSME | Reg: MP-20-0105989**  
-*Applied Legal Data Engineering for Indian Insurance Regulation*
+A Python-based RegTech system built on the **IRDAI Master Circular (2024)**.  
+It does two things no off-the-shelf tool does together:
 
----
+1. **Extracts** every decision rule from the IRDAI circular into structured JSON
+2. **Applies** those rules to real insurance documents to return a legally-grounded claim verdict
 
-## What This Is
-
-JurisCode Labs is an applied R&D organisation that translates 
-complex Indian insurance regulations and judicial precedents into 
-structured, machine-readable compliance intelligence.
-
-This repository contains the working prototype of our 
-**Health Insurance Claim Compliance Engine** — a system that:
-
-1. Extracts structured decision rules from IRDAI circulars automatically
-2. Accepts real insurance policy and hospital documents via file upload
-3. Extracts legally relevant facts from both documents using AI
-4. Checks those facts against a validated judicial rules database
-5. Returns a compliance verdict with the exact IRDAI regulatory source
+Built by [JurisCode Labs](https://github.com/jainyo94) · MIT License · Python 3.9+
 
 ---
 
-## The Problem We Are Solving
+## 🔍 The Problem
 
-IRDAI issued 40+ circulars on health insurance in 2024 alone.
-Every new circular creates obligations that compliance teams 
-must implement manually — a process that takes weeks and 
-produces inconsistent results.
+The IRDAI Master Circular is 100+ pages of dense regulatory text like:
 
-Claims are rejected on legally invalid grounds because the 
-compliance system does not know the current regulatory position.
+> *"No insurer shall reject a claim on grounds of non-disclosure of a pre-existing condition if the policy has been continuously in force for 60 months or more."*
 
-This engine fixes that. Not theoretically — demonstrably.
+Insurance companies interpret these rules inconsistently.  
+Policyholders don't know their rights.  
+Compliance teams manually track hundreds of such clauses.
 
----
-
-## System Components
-
-| File | Purpose |
-|------|---------|
-| `extract.py` | Converts IRDAI circular PDFs into structured decision rules |
-| `server.py` | Flask backend — accepts document uploads, extracts facts, runs rules engine |
-| `app.html` | Browser interface — upload policy + hospital documents, get verdict |
-| `rules.json` | Validated rules database — the core IP of JurisCode Labs |
+**This engine makes those rules executable by a machine.**
 
 ---
 
-## How It Works
-User uploads: Policy PDF + Hospital Document PDF
-↓
-Text extraction (pymupdf)
-↓
-AI fact extraction (Groq LLaMA-3.3-70B)
-Extracts: coverage months, declared conditions,
-diagnosis, admission date, portability status
-↓
-Rules engine checks facts against rules.json
-↓
-Verdict: Pay / Deny / Review Required
-With: exact IRDAI clause, rule applied, confidence level
+## ⚙️ How It Works — Two Modules
+┌─────────────────────────────────────────────────────────┐
+│  MODULE 1 — Rule Extractor (extract.py)                 │
+│                                                         │
+│  IRDAI Circular PDF  →  Groq LLaMA 3.3 70B  →          │
+│  Structured JSON Rules + Color-coded Excel              │
+└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  MODULE 2 — Document Intelligence Engine (server.py)    │
+│                                                         │
+│  Policy PDF + Hospital PDF  →  Fact Extraction  →       │
+│  Rules Engine  →  Claim Verdict (Pay / Deny / Review)   │
+└─────────────────────────────────────────────────────────┘
 
 ---
 
-## Current Rules Database
+## 📤 Sample Output
 
-6 validated rules covering Pre-existing Disease disputes:
+### Rule extracted from circular (`rules.json`):
+```json
+{
+  "rule_id": "DR-2024-07",
+  "rule_name": "Moratorium — Non-Disclosure Waiver",
+  "rule_category": "Moratorium",
+  "data_field_to_check": "continuous_coverage_months",
+  "operator": "GREATER_THAN_OR_EQUAL",
+  "target_value": 60,
+  "target_unit": "months",
+  "action": "BYPASS_NONDISCLOSURE_REJECTION",
+  "obligated_party": "Insurer",
+  "penalty_detail": "Not specified",
+  "plain_english_explanation": "After 5 years of continuous coverage, an insurer cannot reject a claim because the policyholder did not disclose a pre-existing condition."
+}
+```
 
-| Rule ID | Name | Logic |
-|---------|------|-------|
-| DR-2024-PED-01 | Moratorium 48 Months | IF coverage >= 48 months THEN cannot reject on PED |
-| DR-2024-PED-02 | Standard Waiting Period | IF declared AND coverage >= 36 months THEN pay |
-| DR-2024-PED-03 | Portability Credit | IF ported THEN credit previous waiting period |
-| DR-2024-PED-04 | Non-disclosure Remedy | IF not declared THEN proportionate remedy only |
-| DR-2024-PED-05 | Post-inception Diagnosis | IF diagnosed after policy start THEN not PED |
-| DR-2024-PED-06 | Specific Disease 24 Month Cap | IF coverage >= 24 months THEN verify specific list |
-
-Source: IRDAI Master Circular on Health Insurance 2024
+### Claim verdict from Document Engine:
+```json
+{
+  "verdict": "pay",
+  "action": "MANDATE_CLAIM_APPROVAL",
+  "message": "Claim must be accepted under DR-2024-07",
+  "confidence": "HIGH",
+  "applied_rule": "Moratorium — Non-Disclosure Waiver",
+  "missing_fields": []
+}
+```
 
 ---
 
-## Setup Instructions
+## 🗂️ Project Structure
+IRDAI-Rules-Engine/
+│
+├── extract.py          # Module 1 — PDF → AI → JSON/Excel rule extractor
+├── server.py           # Module 2 — Flask API + rules engine for claim checking
+├── app.html            # Web UI — upload documents, view verdict in browser
+├── rules.json          # Sample output — 50+ pre-extracted decision rules
+├── requirements.txt    # All Python dependencies
+├── .env.example        # API key setup template
+├── .gitignore
+└── README.md
 
-### Requirements
-Python 3.10+
-pip install pymupdf groq pandas openpyxl flask
+---
 
-### Configuration
-1. Get a free Groq API key at console.groq.com
-2. Open server.py and replace YOUR_GROQ_API_KEY_HERE with your key
-3. Same for extract.py
+## 🚀 Setup
 
-### Running the Document Analysis System
-cd juriscode-directory
+### Prerequisites
+- Python 3.9 or higher
+- A free [Groq API key](https://console.groq.com) (takes 2 minutes to get)
+- The IRDAI Master Circular PDF — download from [irdai.gov.in](https://irdai.gov.in)
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/jainyo94/IRDAI-Rules-Engine.git
+cd IRDAI-Rules-Engine
+```
+
+### 2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Set your API key
+
+Copy `.env.example` → create a new file called `.env` → paste your key:
+GROQ_API_KEY=your_actual_key_here
+
+Then set it in your terminal:
+
+**Windows:**
+```cmd
+set GROQ_API_KEY=your_actual_key_here
+```
+
+**Mac / Linux:**
+```bash
+export GROQ_API_KEY=your_actual_key_here
+```
+
+---
+
+## 📋 Module 1 — Run the Rule Extractor
+
+Converts the IRDAI circular PDF into structured decision rules.
+
+```bash
+python extract.py --pdf circular.pdf
+```
+
+**Output:**
+- `decision_rules.json` — machine-readable rules
+- `decision_rules.xlsx` — color-coded Excel workbook with summary dashboard
+
+**Optional arguments:**
+--pdf     Path to your PDF          (default: circular.pdf)
+--json    Path for JSON output       (default: decision_rules.json)
+--xlsx    Path for Excel output      (default: decision_rules.xlsx)
+
+---
+
+## 🌐 Module 2 — Run the Document Intelligence Engine
+
+Upload a policy PDF and a hospital/claim PDF. Get a legally-grounded verdict.
+
+```bash
 python server.py
-Open browser: http://localhost:5000
+```
 
-Upload your policy PDF and hospital document. Get compliance verdict.
+Open your browser → `http://localhost:5000`
 
-### Running the Circular Extractor
-python extract.py
-Place any IRDAI circular as circular.pdf in the same folder.
-Outputs: decision_rules.json and decision_rules.xlsx
+The engine will:
+1. Extract structured facts from both documents using AI
+2. Run those facts against the rules database
+3. Return a **Pay / Deny / Manual Review** verdict with the specific rule cited
 
----
-
-## Regulatory Basis
-
-All rules are sourced from and validated against:
-- IRDAI Master Circular on Health Insurance 2024
-- IRDAI (Health Insurance) Regulations 2016
-- Insurance Act 1938
-
-Legal validation: Yogendra Jain, LL.M. Insurance Law, NUJS Kolkata
-PhD Candidate (Insurance Law) | Registered Advocate MP/207/2017
+> ⚠️ This tool assists compliance review. It does not constitute legal advice.
 
 ---
 
-## Research Collaboration
+## 🛠️ Tech Stack
 
-JurisCode Labs is actively expanding its validated rules corpus.
-We are building structured legal intelligence across all IRDAI
-health insurance regulations and appellate judicial precedents.
-
-For research collaboration, internship enquiries, or commercial
-discussion: juriscodelabs@gmail.com
-
----
-
-## Important Notes
-
-- This is a research prototype — not a production compliance system
-- Rules are validated but the corpus is not yet comprehensive
-- AI extraction accuracy depends on document quality
-- Documents are processed locally — only text is sent to Groq for AI extraction
+| Component | Technology |
+|-----------|------------|
+| PDF Reading | PyMuPDF (`fitz`) |
+| AI Model | Groq API — LLaMA 3.3 70B |
+| Web Framework | Flask |
+| Data Processing | pandas |
+| Excel Generation | openpyxl |
+| Frontend | Vanilla HTML / CSS / JS |
 
 ---
 
-*JurisCode Labs | MSME Reg: MP-20-0105989 | juriscodelabs@gmail.com*
+## 🧠 Design Decisions
+
+**Why Groq instead of OpenAI?**  
+Groq's inference speed is 10–20x faster than OpenAI for the same LLaMA model. For processing 6,000-character chunks across a 30,000-character document, this matters.
+
+**Why separate the extractor from the engine?**  
+The rules JSON is a stable asset. Once extracted, the Document Engine runs with zero AI calls for rule-matching — only deterministic logic. This keeps costs low and verdicts auditable.
+
+**Why chunking with overlap?**  
+The circular is 29,000+ characters. LLMs have context limits. 500-character overlap between chunks ensures rules that span a page boundary are never missed.
+
+---
+
+## 📄 License
+
+MIT — free to use, modify, and build on.  
+If you use this in a product, a credit to JurisCode Labs is appreciated.
