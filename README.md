@@ -1,13 +1,49 @@
 # IRDAI Rules Engine
 ### Regulatory Text → Machine-Executable Compliance Rules → Automated Claim Verdicts
 
-A Python-based RegTech system built on the **IRDAI Master Circular (2024)**.  
-It does two things no off-the-shelf tool does together:
+Built by **Yogendra Jain, Founder, Juriscode Labs & Assistant professor of Law** —
+not a developer guessing at regulatory intent, but a domain expert who understands
+*why* each IRDAI rule exists and *how* it gets violated in practice.
+Linkedin- https://www.linkedin.com/in/theyogendr/ 
 
-1. **Extracts** every decision rule from the IRDAI circular into structured JSON
-2. **Applies** those rules to real insurance documents to return a legally-grounded claim verdict
+This is the first open-source system that converts the **IRDAI Master Circular (2024)**
+into machine-executable decision rules — and applies them to real insurance documents
+to return a legally-grounded claim verdict.
 
-Built by [JurisCode Labs](https://github.com/jainyo94) · MIT License · Python 3.9+
+> *Most RegTech is built by engineers who don't understand the law.  
+> Most legal scholars write about RegTech without building anything.  
+> This project sits at that intersection intentionally.*
+
+[JurisCode Labs](https://github.com/jainyo94) · MIT License · Python 3.9+
+
+## 👥 Who This Is For
+
+| Audience | How to use this |
+|----------|----------------|
+| **Insurance Regulators** | Audit whether insurer claim decisions align with IRDAI rules |
+| **Insurers & TPAs** | Self-audit claim rejection logic before IRDAI scrutiny |
+| **Policyholders & Advocates** | Check if a claim rejection is legally valid |
+| **Law Schools & NLUs** | Teaching tool for insurance law and RegTech courses |
+| **Compliance Consultants** | Accelerate regulatory gap analysis for clients |
+
+## ⚖️ Built on Legal Expertise — Not Just Code
+
+Most automated compliance tools are built by engineers working from a surface
+reading of regulations. This engine is different.
+
+The rule extraction schema — the 12 fields, the operator logic, the category
+taxonomy, the penalty mapping — was designed by a legal professional who has
+studied how IRDAI rules are interpreted, disputed, and violated in real claims.
+
+This means:
+- **The rules are legally accurate** — not just pattern-matched from text
+- **The categories reflect actual dispute types** — Moratorium, Pre-existing Disease,
+  TPA Operations — because those are the real battlegrounds in insurance litigation
+- **The verdict logic follows judicial reasoning** — not arbitrary if-else conditions
+
+**JurisCode Labs** is building the infrastructure layer for Indian insurance compliance.  
+For research collaborations, institutional pilots, or compliance advisory:  
+📧 Reach out via [GitHub Issues](https://github.com/jainyo94/IRDAI-Rules-Engine/issues)
 
 ---
 
