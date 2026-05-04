@@ -13,11 +13,26 @@ from datetime import datetime
 # rules that can plug directly into compliance software systems
 # ═══════════════════════════════════════════════════════════════
 
-GROQ_API_KEY = "YOUR_GROQ_API_KEY_HERE"  # Add your key here
+import os
+import argparse
 
-PDF_PATH     = r"C:\Users\yogendra.jain\Downloads\Juriscode Laboratory\circular.pdf"
-OUTPUT_JSON  = r"C:\Users\yogendra.jain\Downloads\Juriscode Laboratory\decision_rules.json"
-OUTPUT_XLSX  = r"C:\Users\yogendra.jain\Downloads\Juriscode Laboratory\decision_rules.xlsx"
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these via environment variables, or pass them as command-line arguments.
+# Never hardcode your API key or file paths here.
+
+parser = argparse.ArgumentParser(description="IRDAI Decision Rules Extractor")
+parser.add_argument("--pdf",    default="circular.pdf",         help="Path to the IRDAI circular PDF")
+parser.add_argument("--json",   default="decision_rules.json",  help="Output JSON file path")
+parser.add_argument("--xlsx",   default="decision_rules.xlsx",  help="Output Excel file path")
+args = parser.parse_args()
+
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")   # Set this in your terminal, never in code
+PDF_PATH     = args.pdf
+OUTPUT_JSON  = args.json
+OUTPUT_XLSX  = args.xlsx
+
+if not GROQ_API_KEY:
+    raise ValueError("❌ GROQ_API_KEY environment variable is not set. See README for instructions.")
 
 CHUNK_SIZE   = 6000   # characters per chunk sent to AI
 OVERLAP      = 500    # overlap between chunks to avoid missing rules at boundaries
